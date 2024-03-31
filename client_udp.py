@@ -8,12 +8,14 @@ TAILLE_MAX_SEGMENT = 1024
 client_socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
 
-client_socket.sendto(b"SEND_FILE", (SERVER_ADDRESS, SERVER_PORT))
+client_socket.sendto(b"DEMANDE DE CONNEXION", (SERVER_ADDRESS, SERVER_PORT)) #demande de connexion
 
 donne_recu = b""
-
+numeroSegment = 0
 while True:
     data, addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT) 
+    numeroSegment += 1
+    print("segment " + str(numeroSegment) + " recu avec succées")
     if data == b"TERMINE":
         break
 

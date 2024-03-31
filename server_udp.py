@@ -25,7 +25,14 @@ server_socket.bind((SERVER_ADDRESS, PORT))
 print("le serveur est en attente et sur écoute " )
 
 while True:
-    data, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT)
+    data, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT) 
+    if data == b"DEMANDE DE CONNEXION":
+        print("connexion établie")
+    else:
+        print("Connexion non établie")
+        break
+
+    
 
 
 
