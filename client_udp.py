@@ -16,7 +16,7 @@ client_socket.sendto(b"DEMANDE DE CONNEXION", (SERVER_ADDRESS, SERVER_PORT)) #de
 dn, adr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)#accuse reception de demande de connexion 
 if dn == b"CONNECTION RECUE": #si la connexion est bien établie
 
-
+#
     fichierEnvoie = input("veuillez entrer le nom du fichier souhaité") #entrer le nom du fichire souhaitéé, il sera rechercher dans le dossier actuel si il existe il sera envoyé sinon on revoie message d'erreur 
     fichierEnvoie = fichierEnvoie.encode()
     client_socket.sendto(fichierEnvoie,(adr)) #envoi du nom du fichier a envoyer au serveur
