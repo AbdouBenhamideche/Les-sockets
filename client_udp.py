@@ -5,25 +5,39 @@ SERVER_ADDRESS = "localhost"
 SERVER_PORT = 21222
 TAILLE_MAX_SEGMENT = 1024
 
+
+
+
 client_socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
 
 client_socket.sendto(b"DEMANDE DE CONNEXION", (SERVER_ADDRESS, SERVER_PORT)) #demande de connexion
 
-donne_recu = b""
-numeroSegment = 0
-while True:
-    data, addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT) 
-    numeroSegment += 1
-    print("segment " + str(numeroSegment) + " recu avec succées")
-    if data == b"TERMINE":
-        break
+dn, adr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)#accuse reception de demande de connexion 
+if dn == b"CONNECTION RECUE": #si la connexion est bien établie
 
-    donne_recu += data
 
-with open("FichierRecu.bin" ,"wb") as file :
-    file.write(donne_recu)
-print("fichier recu avec succée")
+    fichierEnvoie = input("veuillez entrer le nom du fichier souhaité") #entrer le nom du fichire souhaitéé, il sera rechercher dans le dossier actuel si il existe il sera envoyé sinon on revoie message d'erreur 
+
+
+
+    donne_recu = b""
+    numeroSegment = 0
+    while True:
+        data, addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT) 
+        numeroSegment += 1
+        client_socket.sendto(b"segmentRecu",addr)
+        print("segment " + str(numeroSegment) + " recu avec succées")
+        if data == b"TERMINE":
+            break
+
+        donne_recu += data
+
+    with open("FichierRecu.bin" ,"wb") as file :
+        file.write(donne_recu)
+    print("fichier recu avec succée")
+else:     #si y avais pas d accusé de reception de connexion recu
+    print("Erreur de connection")
 
 
 

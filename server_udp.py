@@ -14,6 +14,7 @@ def  SendFile(sock, addr, nomFichier):
                 break
 
             sock.sendto(segment, addr)
+            msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT) #accuse de recepption pour chaque segment !!!!!!
         sock.sendto(b"TERMINE", addr)
         print("fichier envoyé avec succée")
 
@@ -28,6 +29,9 @@ while True:
     data, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT) 
     if data == b"DEMANDE DE CONNEXION":
         print("connexion établie")
+        server_socket.sendto(b"CONNECTION RECUE",client_address)
+        SendFile(server_socket, client_address,  'testfile.txt')
+        break
     else:
         print("Connexion non établie")
         break
@@ -36,7 +40,7 @@ while True:
 
 
 
-    SendFile(server_socket, client_address,  'testfile.txt')
+    
 
 
 
