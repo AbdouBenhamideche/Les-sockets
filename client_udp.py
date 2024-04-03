@@ -40,7 +40,7 @@ if dn == b"CONNECTION RECUE": #si la connexion est bien établie
         while True:
             data, addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT * 5) 
             numeroSegment += 1
-            client_socket.sendto(b"segmentRecu",addr)
+            client_socket.sendto(b"BlocSegmentRecu",addr) #accusé de reception pour chaque bloc
             print("bloc de segment " + str(numeroSegment) + " recu avec succées")
             if data == b"TERMINE":
                 break

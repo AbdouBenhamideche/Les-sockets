@@ -26,7 +26,7 @@ def  SendFile(sock, addr, nomFichier):
         with open(nomFichier, 'rb') as file:
             blocSegment = b""
             n = 0
-            m = 0
+            
             while True:
                 segment = file.read(TAILLE_MAX_SEGMENT)
                 if not segment:
@@ -34,17 +34,17 @@ def  SendFile(sock, addr, nomFichier):
                 
                 blocSegment += segment
                 n += 1
-                m += 1
-                print(m)
+                
+                
                 if n == N:
                     sock.sendto(blocSegment, addr)
-                    msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  # Acknowledge receipt for each block of segments
+                    msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
                     blocSegment = b""
                     n = 0
 
             if blocSegment:
-                sock.sendto(blocSegment, addr)  # Send the remaining block of segments
-                msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  # Acknowledge receipt for the last block of segments
+                sock.sendto(blocSegment, addr)  # envoyer ce que reste
+                msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  # accuse la reception de ce que reste
 
             sock.sendto(b"TERMINE", addr)
             print("Fichier envoyé avec succès")
