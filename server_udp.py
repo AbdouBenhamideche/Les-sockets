@@ -5,6 +5,7 @@ SERVER_ADDRESS = "localhost"
 PORT = 21222
 TAILLE_MAX_SEGMENT = 2048
 N = 5
+nombreDeTentative = 3
 
 
 def rechercher_fichier(nom_fichier):
@@ -38,13 +39,33 @@ def  SendFile(sock, addr, nomFichier):
                 
                 if n == N:
                     sock.sendto(blocSegment, addr)
-                    msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
+                    try:
+                        server_socket.settimeout(3)
+                        msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
+                        if  msg == b"BlocSegmentRecu":
+                            print ("accusé de reception recu pour un bloc de segments")
+                    except socket.timeout:
+                        print("Délai d'attente a expiré")
+
+                    except Exception as e:
+                        print("erreur")
+
+
                     blocSegment = b""
                     n = 0
 
             if blocSegment:
                 sock.sendto(blocSegment, addr)  # envoyer ce que reste
-                msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  # accuse la reception de ce que reste
+                try:
+                        server_socket.settimeout(3)
+                        msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
+                        if  msg == b"BlocSegmentRecu":
+                            print ("accusé de reception recu pour un bloc de segments")
+                except socket.timeout:
+                        print("Délai d'attente a expiré")
+
+                except Exception as e:
+                        print("erreur")
 
             sock.sendto(b"TERMINE", addr)
             print("Fichier envoyé avec succès")
@@ -59,6 +80,7 @@ def  SendFile(sock, addr, nomFichier):
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.bind((SERVER_ADDRESS, PORT))
+
 print("le serveur est en attente et sur écoute " )
 
 while True:
