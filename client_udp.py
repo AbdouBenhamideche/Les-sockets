@@ -30,7 +30,7 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
 
 
     
-    FichierExiste , addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)
+    FichierExiste , addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT) #on recois le nom du fichier a rechercher l'existence
     print (FichierExiste)
     FichierExiste = (FichierExiste.decode())
 
@@ -40,8 +40,8 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
         print("fichier trouvé")
 
         while True:
-            data, addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT * 5) 
-            numeroSegment += 1
+            data, addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT * 5) #reception de bloc de segment
+            numeroSegment += 1   #on incremente le numero du bloc pour avoir le nombre total de bloc 
             client_socket.sendto(b"BlocSegmentRecu",addr) #accusé de reception pour chaque bloc
             print("bloc de segment " + str(numeroSegment) + " recu avec succées")
             if data == b"TERMINE":
