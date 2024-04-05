@@ -30,11 +30,11 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
 
 
     
-    V , addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)
-    print (V)
-    V = (V.decode())
+    FichierExiste , addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)
+    print (FichierExiste)
+    FichierExiste = (FichierExiste.decode())
 
-    if V == "1": #si le nom correspend 
+    if FichierExiste == "1": #si le nom correspend 
 
 
         print("fichier trouvé")

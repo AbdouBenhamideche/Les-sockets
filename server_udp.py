@@ -100,9 +100,9 @@ while True:
             print("Connexion établie")
 
             nomFile, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT)
-            v = rechercher_fichier(nomFile.decode())
-            server_socket.sendto((str(v).encode()), client_address)
-            if v:
+            FichierExiste = rechercher_fichier(nomFile.decode())
+            server_socket.sendto((str(FichierExiste).encode()), client_address)
+            if FichierExiste:
                 SendFile(server_socket, client_address,  nomFile.decode())
                 break
             else:
