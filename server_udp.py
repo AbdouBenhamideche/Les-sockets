@@ -5,7 +5,7 @@ SERVER_ADDRESS = "localhost"
 PORT = 21222
 TAILLE_MAX_SEGMENT = 2048
 N = 5
-nombreDeTentative = 3
+nombreDeTentative = 5
 
 
 def rechercher_fichier(nom_fichier):
@@ -39,16 +39,21 @@ def  SendFile(sock, addr, nomFichier):
                 
                 if n == N:
                     sock.sendto(blocSegment, addr)
-                    try:
-                        server_socket.settimeout(3)
-                        msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
-                        if  msg == b"BlocSegmentRecu":
-                            print ("accusé de reception recu pour un bloc de segments")
-                    except socket.timeout:
-                        print("Délai d'attente a expiré")
+                    for i in range(nombreDeTentative):
+                        try:
+                            server_socket.settimeout(3)
+                            msg, adr = server_socket.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
+                            if msg == b"BlocSegmentRecu":
+                                print("Accusé de réception reçu pour un bloc de segments")
+                            break  # Sort de la boucle si le message est reçu avec succès
+                        except socket.timeout:
+                            print("Délai d'attente a expiré (tentative {}/5)".format(i + 1))
+                        except Exception as e:
+                            print("Erreur:", e)
 
-                    except Exception as e:
-                        print("erreur")
+                    else:
+                        print("Aucun accusé de réception reçu après {} tentatives, déclenchant le timeout.".format(nombreDeTentative))
+
 
 
                     blocSegment = b""
