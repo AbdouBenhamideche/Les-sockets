@@ -1,10 +1,21 @@
 import socket 
 import os 
+import hashlib
 
 SERVER_ADDRESS = "localhost"
 SERVER_PORT = 21222
 TAILLE_MAX_SEGMENT = 2048
 
+
+def calculate_file_hash(file_path): #pour calculer l'hachage d'un fichier 
+    hasher = hashlib.sha256()
+    with open(file_path, "rb") as file:
+        while True:
+            data = file.read(65536)  # Lecture par blocs de 64 Ko
+            if not data:
+                break
+            hasher.update(data)
+    return hasher.hexdigest()
 
 
 
@@ -25,8 +36,8 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
 
 
 
-    donne_recu = b""
-    numeroSegment = 0
+    donne_recu = b"" #variable qui va stocker les données recu
+    numeroSegment = 0  #pour calculer et afficher le nombre de bloc de segments 
 
 
     
@@ -40,7 +51,7 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
         print("fichier trouvé")
 
         while True:
-            data, addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT * 5) #reception de bloc de segment
+            data, addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT * 5) #reception de bloc de segment, le x5 c'est psq le bloc contient 5 segments au plus 
             numeroSegment += 1   #on incremente le numero du bloc pour avoir le nombre total de bloc 
             client_socket.sendto(b"BlocSegmentRecu",addr) #accusé de reception pour chaque bloc
             print("bloc de segment " + str(numeroSegment) + " recu avec succées")
@@ -52,6 +63,21 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
         with open(fichierEnvoie.decode(),"wb") as file :
             file.write(donne_recu)
         print("fichier recu avec succée")
+        
+      
+        hashFileServer,adr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)# on récupère l'hachage du fichier se trouvant au niveau du serveur
+        hashFileServer = hashFileServer.decode()
+       
+        hashFileClient = calculate_file_hash(fichierEnvoie) #hachage du fichier apres la reception  
+        if hashFileClient == hashFileServer:  #si les deux hachage sint indentique donc les données sont integrées
+            print("Le fichier est intègre.")
+        else:
+            print("Le fichier a été altéré lors de la transmission.")
+          
+       
+        
+       
+        
     else:
         print("le fichier n'existe pas.")    #si le nom ne correspond pas
 

@@ -1,5 +1,6 @@
 import socket 
 import os 
+import hashlib
 
 SERVER_ADDRESS = "localhost"
 PORT = 21222
@@ -7,6 +8,15 @@ TAILLE_MAX_SEGMENT = 2048
 NOMBRE_SEGMENTS_BLOC = 5
 NOMBRE_TENTATIVE = 5
 
+def calculate_file_hash(file_path): #pour calculer l'hachage d'un fichier 
+    hasher = hashlib.sha256()
+    with open(file_path, "rb") as file:
+        while True:
+            data = file.read(65536)  # Lecture par blocs de 64 Ko
+            if not data:
+                break
+            hasher.update(data)
+    return hasher.hexdigest()
 
 def rechercher_fichier(nom_fichier):
     # Récupérer le chemin absolu du répertoire actuel
@@ -47,6 +57,8 @@ def  SendFile(sock, addr, nomFichier):
                             if msg == b"BlocSegmentRecu":
                                 print("Accusé de réception reçu pour un bloc de segments")
                                 break  # Sort de la boucle si le message est reçu avec succès
+                        
+
                             
                             
                             
@@ -54,6 +66,10 @@ def  SendFile(sock, addr, nomFichier):
                             print("Délai d'attente a expiré (tentative {}/5)".format(i + 1))
                         except Exception as e:
                             print("Erreur:", e)
+
+
+
+
 
                     else:
                         print("Aucun accusé de réception reçu après {} tentatives, déclenchant le timeout.".format(NOMBRE_TENTATIVE))
@@ -64,17 +80,29 @@ def  SendFile(sock, addr, nomFichier):
                     n = 0
 
             if blocSegment:
-                sock.sendto(blocSegment, addr)  # envoyer ce que reste
-                try:
-                        server_socket.settimeout(3)
-                        msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
-                        if  msg == b"BlocSegmentRecu":
-                            print ("accusé de reception recu pour un bloc de segments")
-                except socket.timeout:
-                        print("Délai d'attente a expiré")
+                for i in range(NOMBRE_TENTATIVE):
+                    try:
+                        sock.sendto(blocSegment, addr)  # envoyer ce que reste (inf a 5 segments)
+                        try:      
+                            server_socket.settimeout(3)
+                            msg, adr = sock.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
+                            if  msg == b"BlocSegmentRecu":
+                                print ("accusé de reception recu pour un bloc de segments")
+                        except socket.timeout:
+                            print("Délai d'attente a expiré")
 
-                except Exception as e:
-                        print("erreur")
+                        except Exception as e:
+                            print("erreur")
+                        
+                
+                
+                    
+                    except socket.timeout:
+                            print("Délai d'attente a expiré")
+
+                    except Exception as e:
+                            print("erreur")
+
 
             sock.sendto(b"TERMINE", addr)
             print("Fichier envoyé avec succès")
@@ -103,11 +131,13 @@ while True:
         if ACK == b"ACK":
             print("Connexion établie")
 
-            nomFile, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT)
-            FichierExiste = rechercher_fichier(nomFile.decode())
-            server_socket.sendto((str(FichierExiste).encode()), client_address)
+            nomFile, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT) #recevoir le nom du fichier souhaiter recuperer de la part du client 
+            FichierExiste = rechercher_fichier(nomFile.decode()) #fonction qui verifie  si le fichier existe ou non !!!a partir du chemin de l'execution du script!!!
+            server_socket.sendto((str(FichierExiste).encode()), client_address)#envoyer le resultat de l'existence du fichier au client
             if FichierExiste:
-                SendFile(server_socket, client_address,  nomFile.decode())
+                SendFile(server_socket, client_address,  nomFile.decode()) #envoie du fichier avec la fonction SendFile
+                server_socket.sendto(calculate_file_hash(nomFile.decode()).encode(), client_address) #envoie de l'hachage du fichier avant l'envoie
+                
                 break
             else:
                 break
@@ -116,16 +146,8 @@ while True:
             
     else:
         print("Connexion non établie")
-        break
+        break   
 
     
 
 
-
-    
-
-
-
-    
-
-    
