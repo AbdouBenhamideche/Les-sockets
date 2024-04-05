@@ -11,12 +11,13 @@ TAILLE_MAX_SEGMENT = 2048
 client_socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
 
-client_socket.sendto(b"DEMANDE DE CONNEXION", (SERVER_ADDRESS, SERVER_PORT)) #demande de connexion
+client_socket.sendto(b"SYN", (SERVER_ADDRESS, SERVER_PORT)) #demande de connexion SYN
 
-dn, adr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)#accuse reception de demande de connexion 
-if dn == b"CONNECTION RECUE": #si la connexion est bien établie
+ACK_SYN, adr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)#accuse reception de demande de connexion 
+if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
+    client_socket.sendto(b"ACK",(SERVER_ADDRESS, SERVER_PORT))#envoi d'un accuse de réception pour confirmer l'etablissement de la connexion
 
-#
+
     fichierEnvoie = input("veuillez entrer le nom du fichier souhaité") #entrer le nom du fichire souhaitéé, il sera rechercher dans le dossier actuel si il existe il sera envoyé sinon on revoie message d'erreur 
     fichierEnvoie = fichierEnvoie.encode()
     client_socket.sendto(fichierEnvoie,(adr)) #envoi du nom du fichier au serveur

@@ -4,8 +4,8 @@ import os
 SERVER_ADDRESS = "localhost"
 PORT = 21222
 TAILLE_MAX_SEGMENT = 2048
-N = 5
-nombreDeTentative = 5
+NOMBRE_SEGMENTS_BLOC = 5
+NOMBRE_TENTATIVE = 5
 
 
 def rechercher_fichier(nom_fichier):
@@ -37,9 +37,9 @@ def  SendFile(sock, addr, nomFichier):
                 n += 1
                 
                 
-                if n == N:
+                if n == NOMBRE_SEGMENTS_BLOC:
                     sock.sendto(blocSegment, addr)
-                    for i in range(nombreDeTentative):
+                    for i in range(NOMBRE_TENTATIVE):
                         try:
                             server_socket.settimeout(3)
                             msg, adr = server_socket.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
@@ -52,7 +52,7 @@ def  SendFile(sock, addr, nomFichier):
                             print("Erreur:", e)
 
                     else:
-                        print("Aucun accusé de réception reçu après {} tentatives, déclenchant le timeout.".format(nombreDeTentative))
+                        print("Aucun accusé de réception reçu après {} tentatives, déclenchant le timeout.".format(NOMBRE_TENTATIVE))
 
 
 
@@ -86,21 +86,28 @@ def  SendFile(sock, addr, nomFichier):
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.bind((SERVER_ADDRESS, PORT))
 
-print("le serveur est en attente et sur écoute " )
+print("le serveur est en attente et sur écoute " )  #mettre le serveur sur ecoute
 
 while True:
-    data, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT) 
-    if data == b"DEMANDE DE CONNEXION":
-        print("connexion établie")
-        server_socket.sendto(b"CONNECTION RECUE",client_address)
-        nomFile, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT)
-        v = rechercher_fichier(nomFile.decode())
-        server_socket.sendto((str(v).encode()), client_address)
-        if v:
-            SendFile(server_socket, client_address,  nomFile.decode())
-            break
-        else:
-            break
+    SYN, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT) #recevoir la demande de connexion du client
+    if SYN == b"SYN":
+        print("Demande de connexion recu")
+        server_socket.sendto(b"ACK_SYN",client_address) #ACK-SYN
+
+        ACK, adr = server_socket.recvfrom(TAILLE_MAX_SEGMENT)
+
+        if ACK == b"ACK":
+
+            nomFile, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT)
+            v = rechercher_fichier(nomFile.decode())
+            server_socket.sendto((str(v).encode()), client_address)
+            if v:
+                SendFile(server_socket, client_address,  nomFile.decode())
+                break
+            else:
+                break
+        else: 
+            print("Connexion non établie")
             
     else:
         print("Connexion non établie")
