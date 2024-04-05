@@ -38,14 +38,18 @@ def  SendFile(sock, addr, nomFichier):
                 
                 
                 if n == NOMBRE_SEGMENTS_BLOC:
-                    sock.sendto(blocSegment, addr)
+                    
                     for i in range(NOMBRE_TENTATIVE):
                         try:
+                            sock.sendto(blocSegment, addr)
                             server_socket.settimeout(3)
                             msg, adr = server_socket.recvfrom(TAILLE_MAX_SEGMENT)  #accuse la reception de chaque bloc
                             if msg == b"BlocSegmentRecu":
                                 print("Accusé de réception reçu pour un bloc de segments")
-                            break  # Sort de la boucle si le message est reçu avec succès
+                                break  # Sort de la boucle si le message est reçu avec succès
+                            
+                            
+                            
                         except socket.timeout:
                             print("Délai d'attente a expiré (tentative {}/5)".format(i + 1))
                         except Exception as e:
