@@ -19,7 +19,7 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
     print("Connexion établie")
 
 
-    fichierEnvoie = input("veuillez entrer le nom du fichier souhaité") #entrer le nom du fichire souhaitéé, il sera rechercher dans le dossier actuel si il existe il sera envoyé sinon on revoie message d'erreur 
+    fichierEnvoie = input("veuillez entrer le nom du fichier souhaité:  ") #entrer le nom du fichire souhaitéé, il sera rechercher dans le dossier actuel si il existe il sera envoyé sinon on revoie message d'erreur 
     fichierEnvoie = fichierEnvoie.encode()
     client_socket.sendto(fichierEnvoie,(adr)) #envoi du nom du fichier au serveur
 
@@ -30,8 +30,8 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
 
 
     
-    FichierExiste , addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT) #on recois le nom du fichier a rechercher l'existence
-    print (FichierExiste)
+    FichierExiste , addr = client_socket.recvfrom(TAILLE_MAX_SEGMENT) #on recois si le fichier existe ou pas
+    print (FichierExiste) #juste pour tester
     FichierExiste = (FichierExiste.decode())
 
     if FichierExiste == "1": #si le nom correspend 
@@ -49,7 +49,7 @@ if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
 
             donne_recu += data
 
-        with open("FichierRecu.bin" ,"wb") as file :
+        with open(fichierEnvoie.decode(),"wb") as file :
             file.write(donne_recu)
         print("fichier recu avec succée")
     else:
