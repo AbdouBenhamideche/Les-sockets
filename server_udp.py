@@ -97,6 +97,7 @@ while True:
         ACK, adr = server_socket.recvfrom(TAILLE_MAX_SEGMENT)
 
         if ACK == b"ACK":
+            print("Connexion établie")
 
             nomFile, client_address = server_socket.recvfrom(TAILLE_MAX_SEGMENT)
             v = rechercher_fichier(nomFile.decode())

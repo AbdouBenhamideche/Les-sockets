@@ -16,6 +16,7 @@ client_socket.sendto(b"SYN", (SERVER_ADDRESS, SERVER_PORT)) #demande de connexio
 ACK_SYN, adr = client_socket.recvfrom(TAILLE_MAX_SEGMENT)#accuse reception de demande de connexion 
 if ACK_SYN == b"ACK_SYN": #si la connexion est bien établie
     client_socket.sendto(b"ACK",(SERVER_ADDRESS, SERVER_PORT))#envoi d'un accuse de réception pour confirmer l'etablissement de la connexion
+    print("Connexion établie")
 
 
     fichierEnvoie = input("veuillez entrer le nom du fichier souhaité") #entrer le nom du fichire souhaitéé, il sera rechercher dans le dossier actuel si il existe il sera envoyé sinon on revoie message d'erreur 
